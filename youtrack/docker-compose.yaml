@@ -1,0 +1,20 @@
+name: youtrack
+services:
+  youtrack:
+    image: jetbrains/youtrack:${YOUTRACK_VERSION:-latest}
+    container_name: youtrack
+    restart: unless-stopped
+    labels:
+      - dev.orbstack.domains=youtrack.local
+    ports:
+      - "${YOUTRACK_PORT:-5080}:8080"
+    volumes:
+      - ${YOUTRACK_BASE_DIR:-.}/data:/opt/youtrack/data
+      - ${YOUTRACK_BASE_DIR:-.}/conf:/opt/youtrack/conf
+      - ${YOUTRACK_BASE_DIR:-.}/logs:/opt/youtrack/logs
+      - ${YOUTRACK_BASE_DIR:-.}/backups:/opt/youtrack/backups
+    networks:
+      - youtrack
+networks:
+  youtrack:
+    external: false
