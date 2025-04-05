@@ -17,4 +17,4 @@ services:
       - youtrack
 networks:
   youtrack:
-    external: false
+    name: youtrack
