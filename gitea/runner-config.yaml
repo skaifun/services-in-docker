@@ -1,0 +1,81 @@
+# 示例配置文件，可以直接复制该文件作为默认配置而无需修改。
+
+# 您无需将此文件复制到实例中，
+# 只需运行 `./act_runner generate-config > config.yaml` 即可生成配置文件。
+
+log:
+  # 日志级别，可选值：trace, debug, info, warn, error, fatal
+  level: info
+
+runner:
+  # 注册结果的存储位置
+  file: .runner
+  # 同时并发执行的任务数量
+  capacity: 1
+  # 运行任务时的额外环境变量
+  envs:
+    TZ: Asia/Shanghai
+  # 从文件加载的额外环境变量（若文件不存在或为空则忽略）
+  env_file: .env
+  # 任务执行的超时时间
+  # 注意：Gitea 实例默认有作业超时时间（3小时），若短于此值可能导致作业被 Gitea 终止
+  timeout: 3h
+  # 关闭时等待运行中任务完成的超时时间（超时后强制取消）
+  shutdown_timeout: 0s
+  # 是否跳过验证 Gitea 实例的 TLS 证书
+  insecure: false
+  # 从 Gitea 获取任务时的超时时间
+  fetch_timeout: 5s
+  # 从 Gitea 获取任务的轮询间隔
+  fetch_interval: 2s
+  # 运行器标签：决定能运行哪些任务及运行方式
+  # 格式示例："macos-arm64:host" 或 "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-latest"
+  # 更多官方镜像请访问 https://gitea.com/gitea/runner-images
+  # 注册时若为空会提示输入，守护进程运行时若为空则使用 .runner 文件中的标签
+  labels:
+    - "ubuntu-latest:docker://gitea/runner-images:ubuntu-latest"
+
+cache:
+  # 是否启用缓存服务（用于 actions/cache）
+  enabled: true
+  # 缓存数据存储目录（空则使用 $HOME/.cache/actcache）
+  dir: ""
+  # 缓存服务器主机地址（非监听地址，而是供任务容器连接的地址）
+  # 留空自动检测，请勿设置为 0.0.0.0
+  host: ""
+  # 缓存服务器端口（0 表示随机可用端口）
+  port: 0
+  # 外部缓存服务器 URL（启用时优先使用该地址作为 ACTIONS_CACHE_URL）
+  # 通常应以 "/" 结尾
+  external_server: ""
+
+container:
+  # 容器连接的网络模式（host/bridge/自定义网络名，空则自动创建）
+  network: "gitea"
+  # 是否使用特权模式启动容器（Docker-in-Docker 需要特权模式）
+  privileged: false
+  # 容器启动时的额外选项（例如 --add-host=my.gitea.url:host-gateway）
+  options:
+  # 任务工作目录的父目录（路径开头无需加"/"，会自动处理）
+  # 示例：若父目录是 /path/to/my/dir，此处填写 path/to/my/dir
+  # 留空则使用 /workspace
+  workdir_parent:
+  # 允许挂载的卷（支持 glob 通配符，空列表表示禁止挂载）
+  # 示例允许挂载 'data' 卷和 /src 目录下所有 json 文件：
+  # valid_volumes:
+  #   - data
+  #   - /src/*.json
+  # 允许所有卷则配置：
+  # valid_volumes:
+  #   - '**'
+  valid_volumes: []
+  # 指定 Docker 客户端地址（空自动检测，"-" 表示不挂载到任务容器）
+  docker_host: ""
+  # 强制拉取镜像（即使本地已存在）
+  force_pull: true
+  # 强制重建镜像（即使本地已存在）
+  force_rebuild: false
+
+host:
+  # 宿主机上任务工作目录的父目录（空则使用 $HOME/.cache/act/）
+  workdir_parent:

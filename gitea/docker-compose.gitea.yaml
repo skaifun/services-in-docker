@@ -1,0 +1,50 @@
+name: "gitea"
+services:
+  server:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: unless-stopped
+    labels:
+      - dev.orbstack.domains=gitea.local
+    healthcheck:
+      test: [ "CMD", "curl","-f", "http://localhost:3000" ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - TZ=Asia/Shanghai
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${RUNNER_REGISTRATION_TOKEN}
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=database:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=${DB_PASSWORD}
+    ports:
+      - "34380:3000"
+      - "34322:22"
+    volumes:
+      - ./gitea:/data
+    networks:
+      - gitea
+    depends_on:
+      - database
+  database:
+    image: postgres:17.2
+    container_name: database
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_DB=gitea
+      - POSTGRES_USER=gitea
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    networks:
+      - gitea
+networks:
+  gitea:
+    name: gitea
+    driver: bridge

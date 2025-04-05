@@ -1,0 +1,26 @@
+name: gitea-runner
+services:
+  runner:
+    image: gitea/act_runner:latest
+    restart: unless-stopped
+    scale: 2
+    environment:
+      - CONFIG_FILE=/config.yaml
+      - TZ=Asia/Shanghai
+      - GITEA_INSTANCE_URL=http://server:3000
+      - GITEA_RUNNER_REGISTRATION_TOKEN=${RUNNER_REGISTRATION_TOKEN}
+      - GITEA_RUNNER_NAME=gitea-runner
+    volumes:
+      - ./runner-config.yaml:/config.yaml
+      - ./runner:/etc/gitea-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      gitea:
+        condition: service_healthy
+        restart: true
+    networks:
+      - gitea
+networks:
+  gitea:
+    name: gitea
+    external: true
